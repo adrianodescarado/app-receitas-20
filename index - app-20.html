@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>365 Bolos Sem Glúten</title>
+
+<style>
+body{
+font-family: Arial, sans-serif;
+background:#f5f5f5;
+margin:0;
+}
+
+#login{
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:#eeeeee;
+}
+
+#login h1{
+font-size:28px;
+}
+
+#login .bolo-grande{
+font-size:100px;
+margin-bottom:20px;
+}
+
+#login input{
+padding:10px;
+font-size:16px;
+margin:10px 0;
+}
+
+#login button{
+padding:10px 20px;
+background:#ff7a00;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+#app{
+display:none;
+padding:20px;
+}
+
+h1{
+text-align:center;
+}
+
+.card{
+background:white;
+border-radius:20px;
+padding:20px;
+margin:20px 0;
+box-shadow:0 5px 20px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.emoji-capa{
+font-size:80px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.emoji-capa:hover{
+transform:scale(1.2);
+}
+
+.detalhes{
+display:none;
+margin-top:15px;
+text-align:left;
+}
+
+ul{
+padding-left:20px;
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+<div class="bolo-grande">🎂</div>
+<h1>App-365 Bolos</h1>
+<input type="password" id="senha" placeholder="Digite a senha">
+<button onclick="entrar()">Entrar</button>
+</div>
+
+<!-- APP -->
+<div id="app">
+<h1>🍰 365 Bolos Sem Glúten, Sem Açúcar e Sem Leite</h1>
+<div id="receitas"></div>
+</div>
+
+<script>
+
+function entrar(){
+const senha = document.getElementById("senha").value;
+if(senha === "1950*"){
+document.getElementById("login").style.display="none";
+document.getElementById("app").style.display="block";
+}else{
+alert("Senha incorreta");
+}
+}
+
+/* COLE AQUI SUA URL CSV PUBLICADA */
+const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSTF1_fDqiUJW1xlBwsMznwLbjZffyNVV0zuRJIEzIav_CsCj8nVuur1ap5iIl0UQyD1q5oOdG5JT3v/pub?gid=0&single=true&output=csv";
+
+function pegarEmoji(sabor){
+
+sabor = sabor.toLowerCase();
+
+if(sabor.includes("chocolate")) return "🍫";
+if(sabor.includes("cenoura")) return "🥕";
+if(sabor.includes("laranja")) return "🍊";
+if(sabor.includes("limão")) return "🍋";
+if(sabor.includes("limao")) return "🍋";
+if(sabor.includes("coco")) return "🥥";
+if(sabor.includes("morango")) return "🍓";
+if(sabor.includes("banana")) return "🍌";
+if(sabor.includes("maçã")) return "🍎";
+if(sabor.includes("maca")) return "🍎";
+
+return "🍰";
+}
+
+fetch(url)
+.then(res => res.text())
+.then(data => {
+
+const linhas = data.split("\n").slice(1);
+
+linhas.forEach(linha => {
+
+const col = linha.split(",");
+
+if(col.length < 10) return;
+
+const nome = col[0];
+const sabor = col[1];
+const categoria = col[2];
+const tempo = col[3];
+const rendimento = col[4];
+const dificuldade = col[5];
+const calorias = col[6];
+const carbo = col[7];
+const prote = col[8];
+const gord = col[9];
+const fibras = col[10];
+const validade = col[11];
+const conservacao = col[12];
+const utensilios = col[13];
+const ingredientes = col[14];
+const preparo = col[15];
+const dicas = col[16];
+const substituicoes = col[17];
+
+const emoji = pegarEmoji(sabor);
+
+const div = document.createElement("div");
+div.className = "card";
+
+div.innerHTML = `
+
+<div class="emoji-capa" onclick="toggle(this)">
+${emoji}
+</div>
+
+<h2>${nome}</h2>
+
+<div class="detalhes">
+
+<p>📂 Categoria: ${categoria}</p>
+<p>⏱ Tempo: ${tempo}</p>
+<p>🍽 Rendimento: ${rendimento}</p>
+<p>⭐ Dificuldade: ${dificuldade}</p>
+
+<h3>🔥 Informações Nutricionais</h3>
+<p>Calorias: ${calorias}</p>
+<p>Carboidratos: ${carbo}</p>
+<p>Proteínas: ${prote}</p>
+<p>Gorduras: ${gord}</p>
+<p>Fibras: ${fibras}</p>
+
+<h3>🥣 Ingredientes</h3>
+<ul>
+${ingredientes.split(";").map(i => `<li>${i}</li>`).join("")}
+</ul>
+
+<h3>👩‍🍳 Modo de Preparo</h3>
+<ul>
+${preparo.split(";").map(p => `<li>${p}</li>`).join("")}
+</ul>
+
+<h3>🧊 Conservação</h3>
+<p>Validade: ${validade}</p>
+<p>${conservacao}</p>
+
+<h3>🍴 Utensílios</h3>
+<p>${utensilios}</p>
+
+<h3>💡 Dicas</h3>
+<p>${dicas}</p>
+
+<h3>🔄 Substituições</h3>
+<p>${substituicoes}</p>
+
+</div>
+`;
+
+document.getElementById("receitas").appendChild(div);
+
+});
+
+});
+
+function toggle(element){
+const detalhes = element.parentElement.querySelector(".detalhes");
+detalhes.style.display = detalhes.style.display === "block" ? "none" : "block";
+}
+
+</script>
+
+</body>
+</html>
